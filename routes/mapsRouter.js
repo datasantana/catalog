@@ -1,21 +1,11 @@
 const express = require('express');
 const { faker } = require('@faker-js/faker');
+const mapsService = require('../services/mapsService');
 const router = express.Router();
+const service = new mapsService();
 
 router.get('/', (req, res) => {
-  const maps = [];
-  const { size } = req.query;
-  const limit = size || 10;
-  for (let i = 0; i < limit; i++) {
-    maps.push({
-      "mapId": i,
-      "name": faker.location.city(),
-      "description": faker.lorem.paragraph(),
-      "image": faker.image.url(),
-      "price": parseInt(faker.commerce.price(), 10),
-      "url": `http://localhost:3000/maps/${i}`,
-    });
-  }
+  const maps = service.find();
   res.json(maps);
 });
 
@@ -28,14 +18,8 @@ router.get('/filter', (req, res) => {
 
 router.get('/:mapId', (req, res) => {
   const { mapId } = req.params;
-  res.json({
-    map: {
-      mapId,
-      "name": "map1",
-      "url": "http://localhost:3000/map1",
-      "datasets": ["http://localhost:3000/dataset1", "http://localhost:3000/dataset2"],
-    },
-  });
+  const map = service.findById(mapId);
+  res.json(map);
 });
 
 router.get('/:mapId/datasets/:datasetId', (req, res) => {
@@ -47,6 +31,35 @@ router.get('/:mapId/datasets/:datasetId', (req, res) => {
       datasetId, {"name": "dataset2", "url": "http://localhost:3000/dataset2"},
     ],
   });
+});
+
+router.post('/', (req, res) => {
+  const body = req.body;
+  const newMap = service.create(body);
+  res.status(201).json(newMap);
+});
+
+router.patch('/:mapId', (req, res) => {
+  const { mapId } = req.params;
+  const body = req.body;
+  const updatedMap = service.update(mapId, body);
+  res.json(updatedMap);
+});
+
+router.put('/:mapId', (req, res) => {
+  const { mapId } = req.params;
+  const body = req.body;
+  res.json({
+    message: 'Map replaced',
+    mapId,
+    map: body,
+  });
+});
+
+router.delete('/:mapId', (req, res) => {
+  const { mapId } = req.params;
+  const deletedMap = service.delete(mapId);
+  res.json(deletedMap);
 });
 
 module.exports = router;
