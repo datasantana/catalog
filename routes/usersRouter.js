@@ -1,6 +1,7 @@
 const express = require('express');
-const { faker } = require('@faker-js/faker');
+const usersService = require('../services/usersService');
 const router = express.Router();
+const service = new usersService();
 
 //router.get('/', (req, res) => {
 //  const { limit, offset } = req.query;
@@ -15,37 +16,40 @@ const router = express.Router();
 //});
 
 router.get('/', (req, res) => {
-  const users = [];
-  const { size } = req.query;
-  const limit = size || 100;
-  for (let i = 0; i < limit; i++) {
-    users.push({
-      "userId": i,
-      "name": faker.person.fullName(),
-      "email": faker.internet.email(),
-      "image": faker.image.avatar(),
-      "url": `http://localhost:3000/users/${i}`,
-    });
-  }
+  const users = service.find();
   res.json(users);
 });
 
-router.get('/filter', (req, res) => {
-  const { filter } = req.query;
-  res.json({
-    filter,
-  });
-});
+// router.get('/filter', (req, res) => {
+//   const { filter } = req.query;
+//   res.json({
+//     filter,
+//   });
+// });
 
 router.get('/:userId', (req, res) => {
   const { userId } = req.params;
-  res.json({
-    user: {
-      userId,
-      "name": "user1",
-      "url": "http://localhost:3000/user1",
-    },
-  });
+  const user = service.findById(userId);
+  res.json(user);
+});
+
+router.post('/', (req, res) => {
+  const body = req.body;
+  const newUser = service.create(body);
+  res.status(201).json(newUser);
+});
+
+router.patch('/:userId', (req, res) => {
+  const { userId } = req.params;
+  const body = req.body;
+  const updatedUser = service.update(userId, body);
+  res.json(updatedUser);
+});
+
+router.delete('/:userId', (req, res) => {
+  const { userId } = req.params;
+  const deletedUser = service.delete(userId);
+  res.json(deletedUser);
 });
 
 module.exports = router;

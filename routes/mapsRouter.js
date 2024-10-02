@@ -1,5 +1,4 @@
 const express = require('express');
-const { faker } = require('@faker-js/faker');
 const mapsService = require('../services/mapsService');
 const router = express.Router();
 const service = new mapsService();
@@ -9,12 +8,12 @@ router.get('/', (req, res) => {
   res.json(maps);
 });
 
-router.get('/filter', (req, res) => {
-  const { filter } = req.query;
-  res.json({
-    filter,
-  });
-});
+// router.get('/filter', (req, res) => {
+//   const { filter } = req.query;
+//   res.json({
+//     filter,
+//   });
+// });
 
 router.get('/:mapId', (req, res) => {
   const { mapId } = req.params;
@@ -22,16 +21,16 @@ router.get('/:mapId', (req, res) => {
   res.json(map);
 });
 
-router.get('/:mapId/datasets/:datasetId', (req, res) => {
-  const { mapId, datasetId } = req.params;
-  res.json({
-    mapId,
-    datasets: [
-      datasetId, {"name": "dataset1", "url": "http://localhost:3000/dataset1"},
-      datasetId, {"name": "dataset2", "url": "http://localhost:3000/dataset2"},
-    ],
-  });
-});
+// router.get('/:mapId/datasets/:datasetId', (req, res) => {
+//   const { mapId, datasetId } = req.params;
+//   res.json({
+//     mapId,
+//     datasets: [
+//       datasetId, {"name": "dataset1", "url": "http://localhost:3000/dataset1"},
+//       datasetId, {"name": "dataset2", "url": "http://localhost:3000/dataset2"},
+//     ],
+//   });
+// });
 
 router.post('/', (req, res) => {
   const body = req.body;
@@ -46,15 +45,15 @@ router.patch('/:mapId', (req, res) => {
   res.json(updatedMap);
 });
 
-router.put('/:mapId', (req, res) => {
-  const { mapId } = req.params;
-  const body = req.body;
-  res.json({
-    message: 'Map replaced',
-    mapId,
-    map: body,
-  });
-});
+// router.put('/:mapId', (req, res) => {
+//   const { mapId } = req.params;
+//   const body = req.body;
+//   res.json({
+//     message: 'Map replaced',
+//     mapId,
+//     map: body,
+//   });
+// });
 
 router.delete('/:mapId', (req, res) => {
   const { mapId } = req.params;
