@@ -1,11 +1,17 @@
 const express = require('express');
 const mapsService = require('../services/mapsService');
+const validationHandler = require('../middlewares/validationHandler');
+const { createMapSchema, updateMapSchema, getMapSchema } = require('../schemas/mapsSchema');
 const router = express.Router();
 const service = new mapsService();
 
-router.get('/', (req, res) => {
-  const maps = service.find();
-  res.json(maps);
+router.get('/', async (req, res, next) => {
+  try {
+    const maps = await service.find();
+    res.json(maps);
+  } catch (error) {
+    next(error);
+  }
 });
 
 // router.get('/filter', (req, res) => {
@@ -15,10 +21,16 @@ router.get('/', (req, res) => {
 //   });
 // });
 
-router.get('/:mapId', (req, res) => {
-  const { mapId } = req.params;
-  const map = service.findById(mapId);
-  res.json(map);
+router.get('/:mapId',
+  validationHandler(getMapSchema, 'params'),
+  async (req, res, next) => {
+  try {
+    const { mapId } = req.params;
+    const map = await service.findById(mapId);
+    res.json(map);
+  } catch (error) {
+    next(error);
+  }
 });
 
 // router.get('/:mapId/datasets/:datasetId', (req, res) => {
@@ -32,17 +44,30 @@ router.get('/:mapId', (req, res) => {
 //   });
 // });
 
-router.post('/', (req, res) => {
-  const body = req.body;
-  const newMap = service.create(body);
-  res.status(201).json(newMap);
+router.post('/',
+  validationHandler(createMapSchema, 'body'),
+  async (req, res, next) => {
+  try {
+    const body = req.body;
+    const newMap = await service.create(body);
+    res.status(201).json(newMap);
+  } catch (error) {
+    next(error);
+  }
 });
 
-router.patch('/:mapId', (req, res) => {
-  const { mapId } = req.params;
-  const body = req.body;
-  const updatedMap = service.update(mapId, body);
-  res.json(updatedMap);
+router.patch('/:mapId',
+  validationHandler(getMapSchema, 'params'),
+  validationHandler(updateMapSchema, 'body'),
+  async (req, res, next) => {
+  try {
+    const { mapId } = req.params;
+    const body = req.body;
+    const updatedMap = await service.update(mapId, body);
+    res.status(201).json(updatedMap);
+  } catch (error) {
+    next(error);
+  }
 });
 
 // router.put('/:mapId', (req, res) => {
@@ -55,10 +80,14 @@ router.patch('/:mapId', (req, res) => {
 //   });
 // });
 
-router.delete('/:mapId', (req, res) => {
-  const { mapId } = req.params;
-  const deletedMap = service.delete(mapId);
-  res.json(deletedMap);
+router.delete('/:mapId', async (req, res, next) => {
+  try {
+    const { mapId } = req.params;
+    const deletedMap = await service.delete(mapId);
+    res.json(deletedMap);
+  } catch (error) {
+    next(error);
+  }
 });
 
 module.exports = router;

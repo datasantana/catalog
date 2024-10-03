@@ -1,4 +1,5 @@
 const { faker } = require('@faker-js/faker');
+const boom = require('@hapi/boom');
 
 class mapsService {
   constructor() {
@@ -16,11 +17,12 @@ class mapsService {
         "image": faker.image.url(),
         "price": parseInt(faker.commerce.price(), 10),
         "url": `http://localhost:3000/maps/${i}`,
+        "visible": faker.datatype.boolean(),
       });
     }
   }
 
-  create(data) {
+  async create(data) {
     const newMap = {
       "mapId": this.maps.length + 1,
       ...data,
@@ -29,18 +31,30 @@ class mapsService {
     return newMap;
   }
 
-  find() {
-    return this.maps;
+  async find() {
+    if (this.maps.length === 0) {
+      throw boom.notFound('Cannot get maps');
+    } else {
+      return this.maps;
+    }
   }
 
-  findById(mapId) {
-    return this.maps.find((map) => map.mapId === parseInt(mapId, 10));
+  async findById(mapId) {
+    const map = this.maps.find((map) => map.mapId === parseInt(mapId, 10));
+    if (!map) {
+      throw boom.notFound('Map not found');
+    }
+    if (!map.visible) {
+      throw boom.forbidden('Map is not visible');
+    } else {
+      return this.maps[mapId];
+    }
   }
 
-  update(mapId, data) {
+  async update(mapId, data) {
     const mapIndex = this.maps.findIndex((map) => map.mapId === parseInt(mapId, 10));
     if (mapIndex === -1) {
-      throw new Error('Map not found');
+      throw boom.notFound('Map not found');
     } else {
       this.maps[mapIndex] = {
         ...this.maps[mapIndex],
@@ -50,10 +64,10 @@ class mapsService {
     }
   }
 
-  delete(mapId) {
+  async delete(mapId) {
     const mapIndex = this.maps.findIndex((map) => map.mapId === parseInt(mapId, 10));
     if (mapIndex === -1) {
-      throw new Error('Map not found');
+      throw boom.notFound('Map not found');
     } else {
       this.maps.splice(mapIndex, 1);
       return {
