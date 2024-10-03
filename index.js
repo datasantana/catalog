@@ -8,7 +8,7 @@ const app = express();
 const port = process.env.PORT || 3000;
 
 app.use(express.json());
-const whitelist = ['http://localhost:8080']; // List of allowed domains. To add all domains, use ['*']
+const whitelist = ['http://localhost:8080', '*']; // List of allowed domains. To add all domains, use ['*']
 const corsOptions = {
   origin: function (origin, callback) {
     if (whitelist.includes(origin) || !origin) {
